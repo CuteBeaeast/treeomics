@@ -10,6 +10,7 @@ from utils.mutation_matrix import write_mutation_matrix
 from utils.data_tables import write_mutation_patterns
 import plots.tikz_tree as tikz
 import utils.latex_output as latex
+from math import exp
 
 __author__ = 'jreiter'
 __date__ = 'July 11, 2015'
@@ -68,11 +69,13 @@ def create_max_lh_tree(patient, tree_filepath=None, mm_filepath=None, mp_filepat
             if tree_filepath is not None:
                 _create_tree_plots(sol, mlh_pg, tree, plots, tikztrees,
                                    tree_filepath + '_{}'.format(sol.rank), driver_vars)
+                _create_tree_report(sol, tree_filepath+ '_{}'.format(sol.rank))
 
         # create tree for most likely solution
         if tree_filepath is not None:
             _create_tree_plots(mlh_pg.solutions[0], mlh_pg, mlh_tree, plots, tikztrees,
                                tree_filepath + '_1', driver_vars, variant_filepath=variant_filepath)
+            _create_tree_report(mlh_pg.solutions[0], tree_filepath+ '_1')
 
         # create mutation matrix for benchmarking
         if mm_filepath is not None:
@@ -85,6 +88,13 @@ def create_max_lh_tree(patient, tree_filepath=None, mm_filepath=None, mp_filepat
         logger.warning('Conflicts could not be resolved. No evolutionary tree has been created.')
 
     return mlh_pg
+
+def _create_tree_report(solution, tree_filepath):
+    '''
+    out put the log likelihood of the given solution.
+    '''
+    with open(tree_filepath + '_report.txt', 'w') as f:
+        f.write("The tree has logged likelihood: {:.2f} \n".format(solution.llh))
 
 
 def _create_tree_plots(solution, mlh_pg, mlh_tree, plots, tikztrees, tree_filepath, driver_vars, variant_filepath=None):
